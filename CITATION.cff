@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "omics-target-prioritization"
+abstract: "Integrate GWAS signals with multi-omics QTLs via colocalization-based variant-to-gene mapping into a calibrated, provenance-tracked target-prioritization score."
+authors:
+  - family-names: "Bayati"
+    given-names: "Armin"
+    email: "a.bayati.brain@gmail.com"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+repository-code: "https://github.com/abayatibrain/omics-target-prioritization"
+url: "https://github.com/abayatibrain/omics-target-prioritization"
+license: MIT
+version: "0.1.0"
+date-released: "2026-06-17"
+keywords:
+  - bioinformatics
+  - statistical-genetics
+  - colocalization
+  - target-prioritization
