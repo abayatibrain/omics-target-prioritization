@@ -69,6 +69,14 @@
         <div class="stats">
           {{ target.n_layers }} corroborating omics layer(s) · max PP.H4 = {{ "%.3f"|format(target.max_h4) }}
         </div>
+        {% if target.mr_direction != "none" %}
+        <div class="stats">
+          Drug-target MR: raising {{ target.symbol }} is
+          <strong>{{ "risk-increasing" if target.mr_direction == "risk" else "protective" }}</strong>
+          {% if target.mr_pvalue is not none %}(p = {{ "%.1e"|format(target.mr_pvalue) }}){% endif %}
+          — {{ "inhibit" if target.mr_direction == "risk" else "agonise" }} to reduce risk
+        </div>
+        {% endif %}
       </div>
     </div>
 

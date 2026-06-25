@@ -78,11 +78,17 @@ summary statistics and each available QTL dataset for that gene, recovering the
 posterior `PP.H4` that the two traits share a single causal variant. `PP.H4` per
 QTL layer/tissue, a **distance-to-TSS exponential decay** feature, and an
 optional **functional-annotation** feature each become a provenance-stamped
-`EvidenceItem`. Per-source evidence is combined with the **Open Targets
-harmonic-sum** (scores sorted descending, `Σ score_i / (i+1)²`, normalized by
-the theoretical maximum) into an overall score in `[0, 1]`. A calibrated rule
-maps the number of independent corroborating layers, the maximum `PP.H4`, and
-the score to a high/medium/low confidence label. See
+`EvidenceItem`. A **drug-target Mendelian-randomization** channel
+(`evidence/mr_evidence.py`) adds the *direction* colocalization can't give —
+whether raising the gene product raises or lowers risk — with a calibrated
+strength (logistic in the MR Z, centred at the significance threshold); because
+the MR instrument is the same QTL, it sharpens and signs the mechanism but is
+deliberately *not* counted as an extra independent omics layer. Per-source
+evidence is combined with the **Open Targets harmonic-sum** (scores sorted
+descending, `Σ score_i / (i+1)²`, normalized by the theoretical maximum) into an
+overall score in `[0, 1]`. A calibrated rule maps the number of independent
+corroborating layers, the maximum `PP.H4`, and the score to a high/medium/low
+confidence label. See
 [`docs/methods.md`](docs/methods.md) and the ADRs in
 [`docs/adrs/`](docs/adrs/).
 
@@ -96,9 +102,13 @@ src/omics_target_prioritization/
 ├── integrate/v2g.py       # colocalization-based variant-to-gene scoring
 ├── evidence/aggregate.py  # Open-Targets harmonic-sum aggregation
 ├── evidence/confidence.py # calibrated confidence label
+├── evidence/mr_evidence.py# drug-target MR directionality channel
 ├── score/prioritize.py    # locus-level ranking
 ├── report/dossier.py      # Jinja2 HTML dossier
 └── cli.py                 # Typer CLI
+
+examples/
+└── trio_end_to_end.py     # full pipeline across all three repos
 ```
 
 ## Scientific references
@@ -109,6 +119,8 @@ src/omics_target_prioritization/
 - GTEx Consortium (2020) *Science* 369:1318–1330 — tissue eQTLs.
 - Kerimov N. *et al.* (2021) *Nat Genet* — eQTL Catalogue.
 - Sun B.B. *et al.* (2023) *Nature* 622:329–338 — UK Biobank PPP plasma pQTLs.
+- Schmidt A.F. *et al.* (2020) *Nat Commun* 11:3255 — genetic drug-target
+  validation by Mendelian randomization (the `mr_directional` channel).
 
 ## License
 

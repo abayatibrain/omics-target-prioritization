@@ -20,7 +20,31 @@ from collections.abc import Mapping
 
 from omics_target_prioritization.evidence.aggregate import aggregate_scores
 from omics_target_prioritization.evidence.confidence import assign_confidence
-from omics_target_prioritization.models import EvidenceItem, Gene, TargetScore
+from omics_target_prioritization.models import (
+    EvidenceItem,
+    Gene,
+    MrDirection,
+    TargetScore,
+)
+
+
+def _mr_summary(items: list[EvidenceItem]) -> tuple[MrDirection, float | None]:
+    """Pull the strongest MR direction and p-value out of the evidence list."""
+    mr_items = [it for it in items if it.source == "mr_directional"]
+    if not mr_items:
+        return "none", None
+    # Strongest MR signal = lowest p-value recorded in provenance.
+    best = min(mr_items, key=lambda it: float(it.provenance.parameters.get("pvalue", 1.0)))
+    direction = str(best.provenance.parameters.get("direction", "none"))
+    pvalue = best.provenance.parameters.get("pvalue")
+    direction_typed: MrDirection
+    if direction == "risk":
+        direction_typed = "risk"
+    elif direction == "protective":
+        direction_typed = "protective"
+    else:
+        direction_typed = "none"
+    return direction_typed, (float(pvalue) if pvalue is not None else None)
 
 
 def score_target(gene: Gene, items: list[EvidenceItem]) -> TargetScore:
@@ -40,6 +64,7 @@ def score_target(gene: Gene, items: list[EvidenceItem]) -> TargetScore:
     """
     total, breakdown = aggregate_scores(items)
     confidence, n_layers, best_h4 = assign_confidence(items, total)
+    mr_dir, mr_p = _mr_summary(items)
     return TargetScore(
         gene_id=gene.gene_id,
         symbol=gene.symbol,
@@ -48,6 +73,8 @@ def score_target(gene: Gene, items: list[EvidenceItem]) -> TargetScore:
         confidence=confidence,
         n_layers=n_layers,
         max_h4=best_h4,
+        mr_direction=mr_dir,
+        mr_pvalue=mr_p,
         evidence=items,
     )
 

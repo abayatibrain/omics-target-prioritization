@@ -37,7 +37,13 @@ EvidenceSource = Literal[
     "caQTL_coloc",
     "distance_to_tss",
     "functional_annotation",
+    "mr_directional",
 ]
+
+#: Direction of a drug-target MR effect: does *raising* the gene product raise
+#: ("risk") or lower ("protective") disease risk? ``"none"`` when there is no
+#: significant directional MR evidence.
+MrDirection = Literal["risk", "protective", "none"]
 
 #: Calibrated confidence labels (see ADR-0003 / ``evidence/confidence.py``).
 ConfidenceLabel = Literal["high", "medium", "low"]
@@ -273,6 +279,14 @@ class TargetScore(BaseModel):
         with non-trivial colocalization). Drives ``confidence``.
     max_h4
         Maximum PP.H4 across all colocalization evidence for this gene.
+    mr_direction
+        Direction of the strongest drug-target MR effect for this gene: whether
+        *raising* the gene product is predicted to raise (``"risk"``) or lower
+        (``"protective"``) disease risk. ``"none"`` if no MR evidence is present.
+        This is the "which way to drug it" readout; it does not change ``total``
+        on its own, it annotates it.
+    mr_pvalue
+        P-value of the strongest MR effect, or ``None`` when absent.
     evidence
         The full list of :class:`EvidenceItem`s that produced ``total``.
     """
@@ -286,4 +300,6 @@ class TargetScore(BaseModel):
     confidence: ConfidenceLabel = "low"
     n_layers: int = Field(ge=0, default=0)
     max_h4: float = Field(ge=0.0, le=1.0, default=0.0)
+    mr_direction: MrDirection = "none"
+    mr_pvalue: float | None = None
     evidence: list[EvidenceItem] = Field(default_factory=list)
